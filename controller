@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Rahim;
+use Illuminate\Http\Request;
+
+class RahimController extends Controller
+{
+    public function View(){
+        $products = Rahim::orderBy('expiry_date','ASC')->orderBy('id','desc')->get();
+        return view('crafted.rahim.product_list',[
+            'products' => $products
+        ]);
+    }
+// create product for rahim store
+    public function Submit(Request $request){
+        $this->validate($request, [
+            'name'=>'required|max:255',
+            'price'=>'required|max:255',
+            'expiry_date'=>'max:255',
+
+        ]);
+
+            $supplier= Rahim::create([
+                
+                'name' => $request->name,
+                'price' => $request->price,
+                'expiry_date' => date('Y/m/d',strtotime($request->expiry_date)),
+
+            ]);
+            return back()->with('Product Successfully Created!');
+    }
+// edit rahim store product-------
+    public function Edit($id){
+        $edit_product = Rahim::FindOrFail($id);
+        return view('crafted.rahim.edit_product',[
+            'edit_product' => $edit_product
+        ]);
+    }
+// update product
+
+    public function Update(Request $request, $id){
+        $update= Rahim::Find($id)->update([
+            'name' => $request->name,
+                'price' => $request->price,
+                'expiry_date' => date('Y/m/d',strtotime($request->expiry_date)),
+        ]);
+        if($update){
+            return redirect()->route('rahim.store')->with('Product Successfully Updated!');
+        }else{
+            return back()->with('Something Wrong');
+        }
+    }
+// product delete----
+    public function Delete($id){
+        $delete = Rahim::FindOrFail($id)->delete();
+        if($delete){
+            return back()->with('Produt Deleted');
+        }else{
+            return back()->with('Something Wrong');
+        }
+    }
+
+
+}
